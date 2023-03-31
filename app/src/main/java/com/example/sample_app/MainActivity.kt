@@ -4,6 +4,8 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import com.google.android.material.textfield.TextInputEditText
@@ -14,6 +16,8 @@ import com.google.firebase.ktx.Firebase
 lateinit var  emailET:TextInputEditText
 lateinit var  passwordET:TextInputEditText
 private lateinit var auth: FirebaseAuth
+private lateinit var error: TextView
+private lateinit var loginText: TextView
 
 
 class MainActivity : AppCompatActivity() {
@@ -22,6 +26,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         emailET= findViewById(R.id.emailET)
         passwordET= findViewById(R.id.psw)
+        error= findViewById(R.id.error)
+        loginText= findViewById(R.id.loginText)
 
         auth = Firebase.auth
 
@@ -29,6 +35,9 @@ class MainActivity : AppCompatActivity() {
             
             val email= emailET.text.toString().trim()
             val password= passwordET.text.toString().trim()
+
+            error.visibility=View.GONE
+            error.text=""
             if (email !="" && password !=""){
                 login(email,password)
             }else{
@@ -45,6 +54,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun login(email: String, password: String) {
+        loginText.text="Loading..."
         auth.signInWithEmailAndPassword(email,password)
             .addOnCompleteListener(this){ task->
                     if (task.isSuccessful){
@@ -52,15 +62,20 @@ class MainActivity : AppCompatActivity() {
                     }else{
                         Toast.makeText(this, "Login failed...", Toast.LENGTH_SHORT).show()
                     }
+                loginText.text="Login"
 
             }
             .addOnFailureListener { it->
-                Toast.makeText(this, "Login failed...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Login failed.", Toast.LENGTH_SHORT).show()
+                error.visibility=View.VISIBLE
+                error.text="${it.message}"
                 it.printStackTrace()
+                loginText.text="Login"
             }
     }
 
     private fun checkLogin(){
+
         val currentUser = auth.currentUser
         Log.d("TAG", "checkLogin: currentUser-->${currentUser?.uid}")
         Log.d("TAG", "checkLogin: currentUser-->${currentUser?.email}")

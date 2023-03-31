@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.sample_app.MainActivity
@@ -54,6 +55,10 @@ private var _binding: FragmentHomeBinding? = null
 
         attendance()
         notificationListenerService()
+        binding.textHome.setOnClickListener {
+            createNewUser()
+        }
+        userDetails()
     }
 
 
@@ -137,7 +142,49 @@ private var _binding: FragmentHomeBinding? = null
     }
 
 
-override fun onDestroyView() {
+    private fun createNewUser(){
+        auth.createUserWithEmailAndPassword("tamillddd1@gmail.com","123@Kannan")
+            .addOnCompleteListener {
+                if (it.isSuccessful){
+                   userDetails()
+                    addUser()
+                }
+            }
+            .addOnFailureListener {
+                it.printStackTrace()
+            }
+    }
+
+    private fun userDetails() {
+        val newUser=auth.currentUser
+
+        Log.d(TAG, "createNewUser: "+newUser?.uid)
+        Log.d(TAG, "createNewUser: "+newUser?.email)
+        Log.d(TAG, "createNewUser: "+newUser?.tenantId)
+        Log.d(TAG, "createNewUser: "+newUser?.displayName)
+        Log.d(TAG, "createNewUser: "+newUser?.phoneNumber)
+        Log.d(TAG, "createNewUser: "+newUser?.providerId)
+    }
+
+    private fun addUser(){
+        val newUser=auth.currentUser
+        val user: MutableMap<String, Any> = HashMap()
+        user["name"] = "kannan"
+        user["email"] = "tamil"
+        user["phone"] = "80888888"
+
+        db.collection("Users").document(auth.currentUser?.uid.toString()).set(
+            AddStudentPojo("kannan","address","30/04/1995","30-41-20","","A","Ramakrishnan","rejeswari")
+        ).addOnSuccessListener {
+            Toast.makeText(requireContext(), "Register success", Toast.LENGTH_SHORT).show()
+        }
+            .addOnFailureListener {
+                it.printStackTrace()
+            }
+
+    }
+
+    override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }

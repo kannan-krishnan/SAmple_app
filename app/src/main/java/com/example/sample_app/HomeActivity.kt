@@ -19,11 +19,13 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.sample_app.databinding.ActivityHomeBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.*
 
 
 class HomeActivity : AppCompatActivity() {
@@ -34,13 +36,17 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
-    private val TAG = HomeActivity::class.java.simpleName
+    private val TAG = "HomeActivity"
 
     override fun onStart() {
         super.onStart()
         checkLogin()
     }
 
+    override fun onResume() {
+        super.onResume()
+        checkLogin()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
@@ -48,29 +54,59 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.appBarHome.toolbar)
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigatin_view)
+        val navController = findNavController(R.id.nav_fragment)
+        bottomNavigationView.setupWithNavController(navController)
 
-        binding.appBarHome.fab.setOnClickListener { view ->
 
-            showAlertForFilter()
-        }
-        val drawerLayout: DrawerLayout = binding.drawerLayout
-        val navView: NavigationView = binding.navView
-        val navController = findNavController(R.id.nav_host_fragment_content_home)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
-            ), drawerLayout
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
 
-        getDetails()
+
+        /*     setSupportActionBar(binding.appBarHome.toolbar)
+
+             binding.appBarHome.fab.setOnClickListener { view ->
+
+                 showAlertForFilter()
+             }
+             val drawerLayout: DrawerLayout = binding.drawerLayout
+             val navView: NavigationView = binding.navView
+             val navController = findNavController(R.id.nav_host_fragment_content_home)
+             // Passing each menu ID as a set of Ids because each
+             // menu should be considered as top level destinations.
+             appBarConfiguration = AppBarConfiguration(
+                 setOf(
+                     R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
+                 ), drawerLayout
+             )
+             setupActionBarWithNavController(navController, appBarConfiguration)
+             navView.setupWithNavController(navController)*/
+
+//        getDetails()
 
 //        attendance()
 //        notificationListenerService()
+
+
+        val job= GlobalScope.launch {
+            Log.d(TAG, "onViewCreated: inside of GlobalScope---->")
+
+            withTimeout(3000) {
+                repeat(5) {
+                    Log.d(
+                        TAG,
+                        "onViewCreated: inside of repeat function working----> is Active =${isActive}"
+                    )
+
+                    delay(1000L)
+                }
+            }
+        }
+        runBlocking {
+//            job.join()
+//            delay(2000)
+//            job.cancel()
+        }
+
+        Log.d(TAG, "onViewCreated: continue with main thread..---->")
     }
 
     /* override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -123,7 +159,16 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun checkLogin() {
+        auth.currentUser?.reload()
         val currentUser = auth.currentUser
+        Log.d("TAG", "checkLogin: currentUser-->${currentUser?.uid}")
+        Log.d("TAG", "checkLogin: currentUser-->${currentUser?.email}")
+        Log.d("TAG", "checkLogin: currentUser-->${currentUser?.phoneNumber}")
+        Log.d("TAG", "checkLogin: currentUser-->${currentUser?.tenantId}")
+        Log.d("TAG", "checkLogin: currentUser-->${currentUser?.isEmailVerified}")
+        Log.d("TAG", "checkLogin: currentUser-->${currentUser?.displayName}")
+        Log.d("TAG", "checkLogin: currentUser-->${currentUser?.photoUrl}")
+        Log.d("TAG", "checkLogin: currentUser-->${currentUser?.providerId}")
         if (currentUser == null) {
             startActivity(Intent(this, MainActivity::class.java))
             finishAffinity()

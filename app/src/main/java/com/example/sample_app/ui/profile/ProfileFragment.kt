@@ -1,4 +1,4 @@
-package com.example.sample_app.ui.gallery
+package com.example.sample_app.ui.profile
 
 import android.app.Dialog
 import android.graphics.Color
@@ -16,8 +16,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.sample_app.R
 import com.example.sample_app.databinding.FragmentGalleryBinding
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlin.math.log
 
-class GalleryFragment : Fragment() {
+class ProfileFragment : Fragment() {
+  private val TAG= "ProfileFragment"
 
 private var _binding: FragmentGalleryBinding? = null
   // This property is only valid between onCreateView and
@@ -30,7 +36,7 @@ private var _binding: FragmentGalleryBinding? = null
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    val galleryViewModel =ViewModelProvider(this).get(GalleryViewModel::class.java)
+    val galleryViewModel =ViewModelProvider(this).get(ProfileViewModel::class.java)
 
     _binding = FragmentGalleryBinding.inflate(inflater, container, false)
     val root: View = binding.root
@@ -49,11 +55,16 @@ private var _binding: FragmentGalleryBinding? = null
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     listLan=  getAllLan()
+
+    Log.d(TAG, "onViewCreated: -------------------------->")
+
+
+
+
+    Log.d(TAG, "onViewCreated: main thread conti.....")
   }
 
-  data class listOflan(
-    val list :ArrayList<Lan> = arrayListOf()
-  )
+
   data class Lan(
     val id:Int,
     val lan:String?=null,
